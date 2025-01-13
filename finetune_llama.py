@@ -21,6 +21,7 @@ parser.add_argument("--per_device_train_batch_size", type=int, default=2)
 parser.add_argument("--per_device_eval_batch_size", type=int, default=2)
 parser.add_argument("--total_batch_size", type=int, default=8)
 parser.add_argument("--learning_rate", type=float, default=2e-5)
+parser.add_argument("--local_rank", type=int, default=-1, help="For distributed training: local_rank")
 
 args = parser.parse_args()
 
@@ -30,7 +31,7 @@ bad_token = '-'
 step_tag = '\n\n\n\n\n' #ки
 step_tag2 = '\n\n'
 # step_tag= '\n\n'
-model_path = '/data/zeju/llama'
+model_path = 'meta-llama/Llama-3.1-8B-Instruct'
 
 # tokenizer = AutoTokenizer.from_pretrained(model_path)
 
@@ -75,8 +76,8 @@ tokenizer.padding_side = "left"  # Allow batched inference
 
 # tokenizer = AutoTokenizer.from_pretrained('peiyi9979/math-shepherd-mistral-7b-prm')
 candidate_tokens = tokenizer.encode(f" {good_token} {bad_token}")[1:] # [489, 482]
-print(candidate_tokens)
-step_tag_id = tokenizer.encode(f" {step_tag}")[-1] # 77425
+candidate_tokens = [candidate_tokens[1], candidate_tokens[2]]
+step_tag_id = tokenizer.encode(f" {step_tag2}")[-1] # 77425
 print(step_tag_id)
 print('step_tag_id:',tokenizer.encode(f" {step_tag}"))
 print('step_tag_id2:',tokenizer.encode(f"{step_tag2}"))
@@ -90,19 +91,24 @@ model = AutoModelForCausalLM.from_pretrained(
     # attn_implementation="flash_attention_2",
 )
 
+print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
 # for name,param in model.named_parameters():
 #     print(name)
 # print(model)
-model.to(device)
+# model.to(device)
 lora_config = LoraConfig(
     task_type=TaskType.CAUSAL_LM,  # LoRA for causal language modeling task
     r=8,  # Rank of LoRA
     lora_alpha=16,  # Alpha scaling factor for LoRA
     lora_dropout=0.1,  # Dropout rate for LoRA layers
-    target_modules=["q_proj", "v_proj"],  # Apply LoRA to specific layers
+    bias="none",
+    # target_modules=["q_proj", "v_proj"],  # Apply LoRA to specific layers
 )
 
 model = get_peft_model(model, lora_config)
+
+print("????????????????????????????????")
 
 # model.to('cuda:0')
 print(model.device)
@@ -116,7 +122,7 @@ def preprocess_function(example):
         truncation=True, 
         padding='max_length', 
         # padding=True,
-        max_length=1024,
+        max_length=4096,
     )
     
     def find_all_indices(lst, element):
@@ -148,8 +154,8 @@ def preprocess_function(example):
     return tokenized_inputs
 
 DATA_PATH = {
-    "train": '/data/zeju/reasoning/output_results_data/results_part_8.json/training_dataset_new.jsonl', 
-    'test': '/data/zeju/reasoning/test.jsonl',
+    "train": '/data/jianyuan/LLMreasoning/training_dataset_new.jsonl', 
+    'test': '/data/jianyuan/LLMreasoning/test.jsonl',
     # "test": '../../datasets/processed_data/prm800k_test.json',
     # "train": "../../datasets/processed_data/math_aps.json",
     # "train": "../../datasets/processed_data/prm800k/data/phase2_train_new.jsonl",
@@ -164,7 +170,8 @@ print('length', len(dataset['train']))
 
 # dataset['train'] = concatenate_datasets([dataset['train'], dataset2['train']])
 
-dataset['train'] = dataset['train'].select(range(5000))
+# dataset['train'] = dataset['train'].select(range(5000))
+dataset['train'] = dataset['train']
 
 print('start processing')
 tokenized_datasets = dataset.map(preprocess_function)
@@ -193,47 +200,47 @@ print(ddp)
 
 
 fp = f'bs_{args.total_batch_size}_lr_{args.learning_rate}'
-output_path = f'./prm_llama/{fp}'
+output_path = f'./prm_llama/{fp}-2e'
 
 
 # Training arguments
-# training_args = TrainingArguments(
-#     output_dir=output_path,
-#     evaluation_strategy="no",  # Evaluate at the end of each epoch
-#     learning_rate=args.learning_rate,
-#     per_device_train_batch_size=2,
-#     per_device_eval_batch_size=args.per_device_eval_batch_size,
-#     gradient_accumulation_steps=8,
-#     num_train_epochs=3,
-#     weight_decay=0.01,
-#     logging_dir="./logs",
-#     logging_steps=10,
-#     save_strategy="epoch",
-#     fp16=True,  # Enable mixed precision for better performance on supported hardware
-#     report_to="none",  # Set to "wandb" if you are using Weights and Biases for logging
-#     dataloader_num_workers=4,
-#     deepspeed='/data/zeju/reasoning/ds_config.json',
-#     # fp16=True, 
-#     ddp_find_unused_parameters=False,
-# )
-
-
 training_args = TrainingArguments(
     output_dir=output_path,
-    overwrite_output_dir=True,
-    num_train_epochs=3,
+    evaluation_strategy="no",  # Evaluate at the end of each epoch
+    learning_rate=args.learning_rate,
     per_device_train_batch_size=2,
+    per_device_eval_batch_size=args.per_device_eval_batch_size,
     gradient_accumulation_steps=8,
-    evaluation_strategy="no",
-    save_strategy="epoch",
-    learning_rate=2e-5,
+    num_train_epochs=2,
     weight_decay=0.01,
     logging_dir="./logs",
     logging_steps=10,
-    save_total_limit=2,
-    fp16=True,  # Enable mixed precision training if supported
+    save_strategy="epoch",
+    fp16=True,  # Enable mixed precision for better performance on supported hardware
+    report_to="none",  # Set to "wandb" if you are using Weights and Biases for logging
     dataloader_num_workers=4,
+    deepspeed='./ds_config.json',
+    # fp16=True, 
+    ddp_find_unused_parameters=False,
 )
+
+
+# training_args = TrainingArguments(
+#     output_dir=output_path,
+#     overwrite_output_dir=True,
+#     num_train_epochs=3,
+#     per_device_train_batch_size=2,
+#     gradient_accumulation_steps=8,
+#     evaluation_strategy="no",
+#     save_strategy="epoch",
+#     learning_rate=2e-5,
+#     weight_decay=0.01,
+#     logging_dir="./logs",
+#     logging_steps=10,
+#     save_total_limit=2,
+#     fp16=True,  # Enable mixed precision training if supported
+#     dataloader_num_workers=4,
+# )
 
 # Define a custom metric function (e.g., accuracy for binary classification)
 def compute_metrics(eval_pred):
