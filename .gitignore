@@ -4,6 +4,7 @@ output_results_data/
 prm_llama*
 bs_8_lr_2e-05/
 prm_datasets/
+process_prm_data/o1_data
 
 *.jsonl
 fine_tuned*
