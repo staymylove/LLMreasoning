@@ -2,3 +2,12 @@ fine_tuned_llama_1b_mix_lora_16bit/
 fine_tuned_llama_1b_mix_lora_16bit1/
 output_results_data/
 prm_llama/
+
+*.jsonl
+fine_tuned*
+llama*
+*.jsonl
+*.txt
+*.csv
+*.tsv
+*.tsv.gz
