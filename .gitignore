@@ -1,7 +1,9 @@
 fine_tuned_llama_1b_mix_lora_16bit/
 fine_tuned_llama_1b_mix_lora_16bit1/
 output_results_data/
-prm_llama/
+prm_llama*
+bs_8_lr_2e-05/
+prm_datasets/
 
 *.jsonl
 fine_tuned*
