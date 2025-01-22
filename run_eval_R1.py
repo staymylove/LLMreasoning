@@ -53,74 +53,72 @@ def save_generated_data(output_file, data):
         f.write(json.dumps(data) + '\n')
 
 def single_process(args):
-    try:
+
     
-        d, template, model_name, use_voting, voting_n, output_dir = args
-        client = OpenAI(
-            base_url="https://api.deepseek.com",
-            api_key="sk-81ae6048413b40f7967e4cecacd2a6a5",
+    d, template, model_name, use_voting, voting_n, output_dir = args
+    client = OpenAI(
+        base_url="https://api.deepseek.com",
+        api_key="sk-81ae6048413b40f7967e4cecacd2a6a5",
+    )
+    
+    messages = prepare_input_boxed(template, d)
+    
+    if not use_voting:
+        completion = client.chat.completions.create(
+            model=model_name,
+            messages=messages,
+            temperature=0.0,
+            max_tokens=8192,
         )
-        
-        messages = prepare_input_boxed(template, d)
-        
-        if not use_voting:
+        generated_critique = completion.choices[0].message.content
+        pred = extract_answer(generated_critique)
+        try:
+            pred = int(pred)
+        except:
+            pred = None
+    else:
+        if 'Qwen2.5-Math' in model_name:
             completion = client.chat.completions.create(
                 model=model_name,
                 messages=messages,
-                temperature=0.0,
+                temperature=0.7,
+                top_p=0.8,
                 max_tokens=8192,
+                n=voting_n,
             )
-            generated_critique = completion.choices[0].message.content
-            pred = extract_answer(generated_critique)
+        else:
+            completion = client.chat.completions.create(
+                model=model_name,
+                messages=messages,
+                temperature=1.0,
+                top_p=0.9,
+                max_tokens=8192,
+                n=voting_n,
+            )
+        generated_critique = [choice.message.content for choice in completion.choices]
+        preds = [extract_answer(e) for e in generated_critique]
+        preds = [e for e in preds if e is not None]
+        if len(preds) == 0:
+            pred = None
+        else:
+            pred = Counter(preds).most_common(1)[0][0]
             try:
                 pred = int(pred)
             except:
                 pred = None
-        else:
-            if 'Qwen2.5-Math' in model_name:
-                completion = client.chat.completions.create(
-                    model=model_name,
-                    messages=messages,
-                    temperature=0.7,
-                    top_p=0.8,
-                    max_tokens=8192,
-                    n=voting_n,
-                )
-            else:
-                completion = client.chat.completions.create(
-                    model=model_name,
-                    messages=messages,
-                    temperature=1.0,
-                    top_p=0.9,
-                    max_tokens=8192,
-                    n=voting_n,
-                )
-            generated_critique = [choice.message.content for choice in completion.choices]
-            preds = [extract_answer(e) for e in generated_critique]
-            preds = [e for e in preds if e is not None]
-            if len(preds) == 0:
-                pred = None
-            else:
-                pred = Counter(preds).most_common(1)[0][0]
-                try:
-                    pred = int(pred)
-                except:
-                    pred = None
-                    
-        result = {
-            'generated_critique': generated_critique,
-            'prediction': pred,
-            'match': (pred == d['label'])
-        }
+                
+    result = {
+        'generated_critique': generated_critique,
+        'prediction': pred,
+        'match': (pred == d['label'])
+    }
 
-    # Save the result after generating
-        save_generated_data(os.path.join(output_dir, 'generated_data.jsonl'), result)
+# Save the result after generating
+    save_generated_data(os.path.join(output_dir, 'generated_data.jsonl'), result)
 
-        return result
+    return result
 
-    except:
-        
-        return None
+
 
 
 def main():
