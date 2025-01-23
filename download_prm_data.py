@@ -35,11 +35,11 @@ def main():
     # List of datasets to download
     datasets = [
         # "RLHFlow/Mistral-PRM-Data",
-        # "peiyi9979/Math-Shepherd",
+        "peiyi9979/Math-Shepherd",
         # "KbsdJames/MathMinos-Natural-language-feedback",
         # "openreasoner/MATH-APS",
-        # "RLHFlow/DS-and-Mistral-PRM-Data",
-        "alpayariyak/prm800k"
+        "RLHFlow/DS-and-Mistral-PRM-Data",
+        # "alpayariyak/prm800k"
     ]
     
     # Download and save each dataset

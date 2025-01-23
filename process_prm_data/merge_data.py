@@ -23,8 +23,8 @@ def merge_jsonl_files(input_files, output_file):
                 for line in tqdm(f, total=num_lines, desc=f"Reading {os.path.basename(input_file)}", unit="lines"):
                     try:
                         record = json.loads(line.strip())
-                        if not isinstance(messages, list):
-                            messages = messages['conversations']
+                        if not isinstance(record, list):
+                            record = record['conversations']
                         file_records.append(record)
                     except json.JSONDecodeError as e:
                         print(f"Error parsing line in {input_file}: {e}")
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     random.seed(42)
     
     input_files = [
-        "/data/jianyuan/LLMreasoning/prm_datasets/our_data_processed.jsonl",
+        "/data/jianyuan/LLMreasoning/prm_datasets/merged_training_dataset_processed.jsonl",
         "/data/jianyuan/LLMreasoning/prm_datasets/math_shepherd_processed.jsonl",
         "/data/jianyuan/LLMreasoning/prm_datasets/RLHFlow_DS-and-Mistral-PRM-Data.jsonl"
     ]
