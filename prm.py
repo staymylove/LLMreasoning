@@ -10,45 +10,47 @@ import os
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-model_id = "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B"
+model_id = "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B"
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 tokenizer.pad_token = tokenizer.eos_token 
 
-processed_dataset_path = "/data/jianyuan/LLMreasoning/prm_datasets/merged_data_unfiltered_v0.arrow"
+processed_dataset_path = "/data/jianyuan/LLMreasoning/prm_datasets/math_shepherd_processed.arrow"
 
 if os.path.exists(processed_dataset_path):
     train_dataset = Dataset.load_from_disk(processed_dataset_path)
 else:
     step_tag2 = 'ки'
-    with open("/data/jianyuan/LLMreasoning/prm_datasets/merged_data_unfiltered_v0.jsonl", "r") as f:
+    with open("/data/jianyuan/LLMreasoning/prm_datasets/math_shepherd_processed.jsonl", "r") as f:
         data_list = []
         lines = f.readlines()
-        for line in tqdm(lines):
+        for i, line in enumerate(tqdm(lines)):
             messages = json.loads(line)
             try:
                 if not isinstance(messages, list):
                     messages = messages['conversations']
                 inputs = tokenizer.apply_chat_template(messages, tokenize=False)
+                labels = [
+                    msg if msg['role'] == 'usr' else {'role': 'assistant', 'content': step_tag2} for msg in messages
+                ]
+                labels = tokenizer.apply_chat_template(labels, tokenize=False)
                 data_list.append(
                     {
                         'inputs': inputs,
-                        'labels': inputs.replace('+<|eot_id|>', 'ки<|eot_id|>').replace('-<|eot_id|>', 'ки<|eot_id|>')
+                        'labels': labels,
                     }
                 )
             except:
                 print(messages)
+
     train_dataset = Dataset.from_list(data_list)
     
     good_token = '+'
     bad_token = '-'
     step_tag2 = 'ки'
-    candidate_tokens = [
-        tokenizer.encode(f"{good_token}")[-1],
-        tokenizer.encode(f"{bad_token}")[-1],
-    ]
-    step_tag_id = tokenizer.encode(f"{step_tag2}")[-1]
+    candidate_tokens = tokenizer.encode(f" {good_token} {bad_token}")[1:] # [489, 482]
+    step_tag_id = tokenizer.encode(f"{step_tag2}")[-1] # 77425
     print(f"Token IDs being used for ghost attention: {candidate_tokens}")
-    print("step_tag_id: ", step_tag_id)# For verification
+    print("step_tag_id: ", step_tag_id, tokenizer.encode(f" {step_tag2}")[-1])# For verification
 
     def preprocess_function(examples):
         max_length = 512  # Define the maximum length for each chunk
@@ -79,11 +81,11 @@ lora_config = LoraConfig(
 # model = get_peft_model(model, lora_config)
 
 training_args = TrainingArguments(
-    output_dir="./llama-prm-math-shepherd-full-1e-4",
+    output_dir="deepseek-r1-prm-math-shepherd-full-adapters",
     overwrite_output_dir=True,
     num_train_epochs=1,
-    per_device_train_batch_size=16,
-    gradient_accumulation_steps=1,
+    per_device_train_batch_size=8,
+    gradient_accumulation_steps=4,
     evaluation_strategy="no",
     save_strategy="epoch",
     learning_rate=1e-4,
@@ -117,8 +119,8 @@ def main():
     # Merge the LoRA adapters into the model
     model = model.merge_and_unload()
     # Save the full model with merged adapters
-    model.save_pretrained("./llama-8b-prm-math-shepherd-full-1e-4")
-    tokenizer.save_pretrained("./llama-8b-prm-math-shepherd-full-1e-4")
+    model.save_pretrained("./deepseek-r1-14b-prm-math-shepherd-full")
+    tokenizer.save_pretrained("./deepseek-r1-14b-prm-math-shepherd-full")
     print("Full model and tokenizer saved!")
 
 

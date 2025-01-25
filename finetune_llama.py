@@ -82,7 +82,7 @@ candidate_tokens = tokenizer.encode(f" {good_token} {bad_token}")[1:] # [489, 48
 step_tag_id = tokenizer.encode(f" {step_tag2}")[-1] # 77425
 print(step_tag_id)
 print('step_tag_id:',tokenizer.encode(f" {step_tag}"))
-print('step_tag_id2:',tokenizer.encode(f"{step_tag2}"))
+print('step_tag_id2:',tokenizer.encode(f" {step_tag2}"))
 # model = AutoModelForCausalLM.from_pretrained('peiyi9979/math-shepherd-mistral-7b-prm').eval()
 # model = AutoModelForCausalLM.from_pretrained(model_path).eval()
 model = AutoModelForCausalLM.from_pretrained(
