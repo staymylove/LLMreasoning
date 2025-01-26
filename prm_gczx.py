@@ -14,13 +14,13 @@ model_id = "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B"
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 tokenizer.pad_token = tokenizer.eos_token 
 
-processed_dataset_path = "/data/jianyuan/LLMreasoning/prm_datasets/math_shepherd_processed.arrow"
+processed_dataset_path = "/obs-gczx-project03/unfiltered-train/merged_data_unfiltered_v0.arrow"
 
 if os.path.exists(processed_dataset_path):
     train_dataset = Dataset.load_from_disk(processed_dataset_path)
 else:
     step_tag2 = 'ки'
-    with open("/data/jianyuan/LLMreasoning/prm_datasets/math_shepherd_processed.jsonl", "r") as f:
+    with open("/obs-gczx-project03/unfiltered-train/merged_data_unfiltered_v0.jsonl", "r") as f:
         data_list = []
         lines = f.readlines()
         for i, line in enumerate(tqdm(lines)):
