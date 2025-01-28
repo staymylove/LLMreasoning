@@ -20,12 +20,12 @@ def single_process(d):
         if sdx == 0:
             messages.append({
                 'role': 'user', 
-                'content': f"Problem: {d['problem']}\n\nStep: {step}\n\nIs this step correct? Please respond and answer with '+' for correct or '-' for incorrect in the end."
+                'content': f"Problem: {d['problem']}\n\nStep: {step}\n\nIs this step correct? Think and explain."
             })
         else:
             messages.append({
                 'role': 'user', 
-                'content': f"Step: {step}\n\nIs this step correct? Please respond and answer with '+' for correct or '-' for incorrect in the end."
+                'content': f"Step: {step}\n\nIs this step correct? Think and explain."
             })
         
         completion = client.chat.completions.create(
