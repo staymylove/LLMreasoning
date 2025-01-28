@@ -29,7 +29,7 @@ mkdir -p  log
 for i in {7..10}
 do
     SPLIT_FILE="$SPLIT_DIR/fold_${i}.json"
-    GPU_ID=$((i-1))
+    GPU_ID=$((i-7))
     OUTPUT_FILE="$OUTPUT_DIR/results_fold_${i}.json"
     LOG_FILE_PREFIX="log/omega_prm_gpu_$GPU_ID"
 
