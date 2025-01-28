@@ -36,7 +36,7 @@ def single_process(d):
             max_tokens=1024,
         )
         # print(completion.choices[0].message.content)
-        pattern = r'\b(\w+\s+){0,20}+\b'
+        pattern = r'(?:\b\w+\b\s*){0,5}\+'
         judgment = re.search(pattern, completion.choices[0].message.content.strip().lower())
         # judgment = completion.choices[0].message.content.strip().lower().startswith('+')
         if not judgment:
