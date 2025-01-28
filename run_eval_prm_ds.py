@@ -20,12 +20,12 @@ def single_process(d):
         if sdx == 0:
             messages.append({
                 'role': 'user', 
-                'content': f"Problem: {d['problem']}\n\nStep: {step}\n\nIs this step correct? Think and explain."
+                'content': f"Problem: {d['problem']}\n\nStep: {step}\n\nIs this step correct? Answer with '+' for correct or '-' for incorrect."
             })
         else:
             messages.append({
                 'role': 'user', 
-                'content': f"Step: {step}\n\nIs this step correct? Think and explain."
+                'content': f"Step: {step}\n\nIs this step correct? Answer with '+' for correct or '-' for incorrect."
             })
         
         completion = client.chat.completions.create(
@@ -33,7 +33,7 @@ def single_process(d):
             messages=messages,
             n=1,
             temperature=0.,
-            max_tokens=1,
+            max_tokens=512,
         )
         print(completion.choices[0].message.content)
         judgment = completion.choices[0].message.content.strip().lower().startswith('+')
