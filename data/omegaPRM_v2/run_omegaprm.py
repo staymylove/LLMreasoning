@@ -4,6 +4,7 @@ import logging
 import os
 from typing import Dict
 from tqdm import tqdm
+import time
 
 from omegaprm import LanguageModel, OmegaPRM
 
@@ -117,6 +118,7 @@ def main(args):
     )
 
     processed_count = 0  # Counter for processed questions
+    start_time = time.time()
 
     for idx, question in tqdm(enumerate(questions)):
         if should_process_question(question, llm):
@@ -125,6 +127,13 @@ def main(args):
             processed_count += 1
         else:
             logger.info(f"Skipping question: {question['problem']}")
+
+        # Calculate and log ETA
+        elapsed_time = time.time() - start_time
+        avg_time_per_question = elapsed_time / (idx + 1)
+        remaining_questions = len(questions) - (idx + 1)
+        eta = avg_time_per_question * remaining_questions
+        logger.info(f"ETA for remaining questions: {eta:.2f} seconds")
 
     # Log summary
     logger.info(
