@@ -42,7 +42,7 @@ def should_process_question(question: Dict[str, str], llm: LanguageModel) -> boo
     has_correct = False
     has_incorrect = False
 
-    initial_batch_answers = llm.generate_rollout(prompt, 32)
+    initial_batch_answers = llm.generate_rollout(prompt, 16)
 
     for answer in initial_batch_answers:
         if llm.evaluate_correctness(answer, correct_answer):
@@ -133,7 +133,9 @@ def main(args):
         avg_time_per_question = elapsed_time / (idx + 1)
         remaining_questions = len(questions) - (idx + 1)
         eta = avg_time_per_question * remaining_questions
-        logger.info(f"ETA for remaining questions: {eta:.2f} seconds")
+        eta_days = eta // (24 * 3600)  # Convert to days
+        eta_hours = (eta % (24 * 3600)) // 3600  # Remaining hours
+        logger.info(f"ETA for remaining questions: {int(eta_days)} days {eta_hours:.1f} hours")
 
     # Log summary
     logger.info(
