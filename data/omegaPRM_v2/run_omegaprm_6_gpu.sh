@@ -19,7 +19,7 @@ SAVE_DATA_TREE=True
 OUTPUT_DIR="output_results_data"
 
 # Split files directory
-SPLIT_DIR="output_folds"
+SPLIT_DIR="output_folds_8"
 
 # Create output directory if it doesn't exist
 mkdir -p $OUTPUT_DIR
