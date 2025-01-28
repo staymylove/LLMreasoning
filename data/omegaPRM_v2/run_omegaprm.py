@@ -121,7 +121,8 @@ def main(args):
     start_time = time.time()
 
     for idx, question in tqdm(enumerate(questions)):
-        if should_process_question(question, llm):
+        should_process = True
+        if should_process:
             collected_data = process_question(omega_prm, question)
             save_question_data(collected_data, idx, output_file)
             processed_count += 1
