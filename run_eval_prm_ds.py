@@ -35,7 +35,7 @@ def single_process(d):
             temperature=0.,
             max_tokens=1,
         )
-        print(completion)
+        print(completion.choices[0].message.content)
         judgment = completion.choices[0].message.content.strip().lower().startswith('+')
         if not judgment:
             return sdx
