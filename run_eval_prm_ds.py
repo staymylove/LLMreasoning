@@ -20,12 +20,12 @@ def single_process(d):
         if sdx == 0:
             messages.append({
                 'role': 'user', 
-                'content': f"Problem: {d['problem']}\n\nStep: {step}\n\nIs this step correct? You must answer with 'correct' for correct or 'incorrect' for incorrect in the end of your response."
+                'content': f"Problem: {d['problem']}\n\nStep: {step}\n\nIs this step correct? You must answer with '+' for correct or '-' for incorrect in the end of your response."
             })
         else:
             messages.append({
                 'role': 'user', 
-                'content': f"Step: {step}\n\nIs this step correct? You must answer with 'correct' for correct or 'incorrect' for incorrect in the end of your response."
+                'content': f"Step: {step}\n\nIs this step correct? You must answer with '+' for correct or -' for incorrect in the end of your response."
             })
         
         completion = client.chat.completions.create(
@@ -36,7 +36,7 @@ def single_process(d):
             max_tokens=1024,
         )
         # print(completion.choices[0].message.content)
-        pattern = r'\b(\w+\s+){0,30}correct\b'
+        pattern = r'\b(\w+\s+){0,30}+\b'
         judgment = re.search(pattern, completion.choices[0].message.content.strip().lower())
         # judgment = completion.choices[0].message.content.strip().lower().startswith('+')
         if not judgment:
