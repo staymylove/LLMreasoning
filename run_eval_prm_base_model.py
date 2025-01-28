@@ -4,8 +4,8 @@ Suppose you have launch an vllm server, e.g., through:
 
 ```
 vllm serve \
-	RLHFlow/Llama3.1-8B-PRM-Mistral-Data \
-	--served-model-name Llama3.1-8B-PRM-Mistral-Data \
+	/root/Llama3.1-8B-Instruct/ \
+	--served-model-name Llama3.1-8B-Instruct \
     --port 8000 \
     --tensor-parallel-size 8 \
     --dtype auto \
@@ -85,7 +85,7 @@ def main():
         base_url="http://localhost:8000/v1",
         api_key="token-abc123",
     )
-    os.makedirs('outputs/Llama3.1-8B-PRM-Mistral-Data', exist_ok=True)
+    os.makedirs('outputs/Llama3.1-8B-Instruct', exist_ok=True)
 
     configs = ['gsm8k', 'math', 'olympiadbench', 'omnimath']
     for config in configs:
@@ -103,10 +103,10 @@ def main():
         
         data1 = [e for e in res_data if e['label'] != -1]
         data2 = [e for e in res_data if e['label'] == -1]
-        with open(f'outputs/Llama3.1-8B-PRM-Mistral-Data/{config}_error.jsonl', 'w') as f:
+        with open(f'outputs/Llama3.1-8B-Instruct/{config}_error.jsonl', 'w') as f:
             for e in data1:
                 f.write(json.dumps(e) + '\n')
-        with open(f'outputs/Llama3.1-8B-PRM-Mistral-Data/{config}_correct.jsonl', 'w') as f:
+        with open(f'outputs/Llama3.1-8B-Instruct/{config}_correct.jsonl', 'w') as f:
             for e in data2:
                 f.write(json.dumps(e) + '\n')
         
