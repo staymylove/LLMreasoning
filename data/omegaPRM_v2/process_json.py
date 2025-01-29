@@ -5,6 +5,7 @@ from typing import List
 import math
 import argparse
 from datasets import load_dataset
+import matplotlib.pyplot as plt
 
 def sample_questions(input_filepath: str, output_filepath: str, num_samples: int):
     """
@@ -56,17 +57,22 @@ def split_questions(input_filepath: str, output_dir: str, questions_per_file: in
 def split_questions_uniformly(input_filepath: str, output_directory: str, num_files: int):
     """
     Split a JSON file containing questions into a specified number of files with approximately equal questions.
+    First shuffles and takes 500,000 samples, then splits evenly. Also creates a circle plot of sources.
 
     Parameters:
     - input_filepath (str): Path to the JSON file containing the list of questions.
     - output_directory (str): Directory to save the split JSON files.
     - num_files (int): Number of files to split the questions into.
-
-    Each output file will contain approximately len(questions) / num_files questions.
     """
     # Load questions from the input file
     with open(input_filepath, 'r') as f:
         questions = json.load(f)
+
+    # Shuffle and take first 500k samples
+    random.shuffle(questions)
+    print(len(questions))
+    questions = questions[:int(len(questions) * 0.1)]
+    print(len(questions))
 
     # Calculate the number of questions per file
     total_questions = len(questions)
@@ -87,6 +93,22 @@ def split_questions_uniformly(input_filepath: str, output_directory: str, num_fi
 
         print(f"Saved {len(questions_subset)} questions to {output_filepath}")
 
+    # Count sources
+    source_counts = {}
+    for q in questions:
+        source = q.get('source', 'Unknown')
+        source_counts[source] = source_counts.get(source, 0) + 1
+
+    # Create pie chart
+    plt.figure(figsize=(10, 10))
+    plt.pie(source_counts.values(), labels=source_counts.keys(), autopct='%1.1f%%')
+    plt.title('Distribution of Question Sources')
+    plt.axis('equal')
+    
+    # Save plot
+    plt.savefig(os.path.join(output_directory, 'source_distribution.png'))
+    plt.close()
+
 
 def split_dataset_kfold(dataset_name: str, output_dir: str, k_folds: int):
     """
@@ -106,8 +128,14 @@ def split_dataset_kfold(dataset_name: str, output_dir: str, k_folds: int):
     for item in dataset['train']:
         questions.append({
             'problem': item['query'],
-            'final_answer': item['answer']
+            'final_answer': item['answer'],
         })
+    
+    # Shuffle and take first 10% of samples
+    random.shuffle(questions)
+    print(len(questions))
+    questions = questions[:int(len(questions) * 0.1)]
+    print(len(questions))
     
     # Calculate the size of each fold
     total_questions = len(questions)
@@ -127,6 +155,12 @@ def split_dataset_kfold(dataset_name: str, output_dir: str, k_folds: int):
             json.dump(fold_questions, f_out, indent=4)
             
         print(f"Saved {len(fold_questions)} questions to {output_filepath}")
+
+    # Count sources
+    source_counts = {}
+    for q in questions:
+        source = q.get('source', 'Unknown')
+        source_counts[source] = source_counts.get(source, 0) + 1
 
 
 def main():
