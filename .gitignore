@@ -11,7 +11,7 @@ deepseek*
 fine_tuned*
 llama*
 *.jsonl
-*.txt
+# *.txt
 *.csv
 *.tsv
 *.tsv.gz

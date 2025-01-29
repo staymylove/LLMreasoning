@@ -1,0 +1,25 @@
+I will show you a [Math Problem] and a [Partial Solution] with multiple steps where all steps except possibly the last one are known to be correct. Your task is to determine if the **last step** in the [Partial Solution] is mathematically valid and follows logically from the previous steps.
+
+--------------------------------------------------
+
+[Math Problem]
+
+{problem}
+
+[Partial Solution]
+
+{response}
+
+--------------------------------------------------
+
+Please evaluate whether the **last step** in the [Partial Solution] is correct, based on:
+1. Mathematical validity
+2. Logical consistency with previous steps
+3. Proper application of mathematical rules and operations
+
+Note:
+1. All steps before the last step in the [Partial Solution] are guaranteed to be correct
+2. You only need to verify if the last step follows logically from the previous steps
+3. Focus on whether the mathematical reasoning in the last step is valid
+
+Reply with only '+' for valid or '-' for invalid in the end of your response.
