@@ -579,7 +579,7 @@ if __name__ == "__main__":
         beta=0.9,
         L=500,
         k=8,
-        N=10,
+        N=6,
         rollout_budget=20,
         save_data_tree=True,
     )

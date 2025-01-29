@@ -134,7 +134,7 @@ def split_dataset_kfold(dataset_name: str, output_dir: str, k_folds: int):
     # Shuffle and take first 10% of samples
     random.shuffle(questions)
     print(len(questions))
-    questions = questions[:int(len(questions) * 0.1)]
+    questions = questions[:500000]
     print(len(questions))
     
     # Calculate the size of each fold
