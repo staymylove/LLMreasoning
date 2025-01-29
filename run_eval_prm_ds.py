@@ -1,5 +1,3 @@
-
-
 import os
 import numpy as np
 import json
@@ -16,7 +14,14 @@ def single_process(d):
     global client
     steps = d['steps']
     messages = []
+    generations = []  # Store all intermediate generations
     for sdx, step in enumerate(steps):
+        step_info = {
+            'step_index': sdx,
+            'step_content': step,
+            'is_first_step': sdx == 0
+        }
+        
         if sdx == 0:
             messages.append({
                 'role': 'user', 
@@ -33,16 +38,18 @@ def single_process(d):
             messages=messages,
             n=1,
             temperature=0.,
-            max_tokens=1024,
+            max_tokens=2048,
         )
-        # print(completion.choices[0].message.content)
+        response = completion.choices[0].message.content
+        step_info['response'] = response
+        generations.append(step_info)  # Save the generation with step information
+        
         pattern = r'(?:\b\w+\b\s*){0,5}\+'
-        judgment = re.search(pattern, completion.choices[0].message.content.strip().lower())
-        # judgment = completion.choices[0].message.content.strip().lower().startswith('+')
+        judgment = re.search(pattern, response.strip().lower())
         if not judgment:
-            return sdx
+            return {'step': sdx, 'generations': generations}
         messages.append({'role': 'assistant', 'content': '+'})
-    return -1
+    return {'step': -1, 'generations': generations}
 
 def main():
     global client
@@ -63,8 +70,9 @@ def main():
         res_data = []
         for idx, d in enumerate(input_data):
             new_d = d.copy()
-            new_d['prediction'] = predictions[idx]
-            new_d['match'] = predictions[idx] == d['label']
+            new_d['prediction'] = predictions[idx]['step']
+            new_d['generations'] = predictions[idx]['generations']
+            new_d['match'] = predictions[idx]['step'] == d['label']
             res_data.append(new_d)
         
         data1 = [e for e in res_data if e['label'] != -1]
