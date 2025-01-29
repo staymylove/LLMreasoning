@@ -38,9 +38,10 @@ def single_process(d):
             messages=messages,
             n=1,
             temperature=0.,
-            max_tokens=2048,
+            max_tokens=1024,
         )
         response = completion.choices[0].message.content
+        print(response)
         step_info['response'] = response
         generations.append(step_info)  # Save the generation with step information
         
