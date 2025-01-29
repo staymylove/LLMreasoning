@@ -16,22 +16,13 @@ def single_process(d):
     messages = []
     generations = []  # Store all intermediate generations
     for sdx, step in enumerate(steps):
-        step_info = {
-            'step_index': sdx,
-            'step_content': step,
-            'is_first_step': sdx == 0
-        }
-        
-        if sdx == 0:
-            messages.append({
-                'role': 'user', 
-                'content': f"Problem: {d['problem']}\n\nStep: {step}\n\nIs this step correct? You must answer with '+' for correct or '-' for incorrect in the end of your response."
-            })
-        else:
-            messages.append({
-                'role': 'user', 
-                'content': f"Step: {step}\n\nIs this step correct? You must answer with '+' for correct or -' for incorrect in the end of your response."
-            })
+        # Wrap each step with <step1>...</step1>, <step2>...</step2>, etc.
+        wrapped_steps = [f"<step{i+1}>{s}</step{i+1}>" for i, s in enumerate(steps[:sdx + 1])]
+        combined_steps = "\n\n".join(wrapped_steps)
+        messages = [{
+            'role': 'user',
+            'content': f"Problem: {d['problem']}\n\nPartial Solution:\n{combined_steps}\n\nIs this step correct? You must answer with '+' for correct or '-' for incorrect."
+        }]
         
         completion = client.chat.completions.create(
             model='DS14B',
@@ -42,11 +33,17 @@ def single_process(d):
         )
         response = completion.choices[0].message.content
         print(response)
-        step_info['response'] = response
-        generations.append(step_info)  # Save the generation with step information
         
+        # Check if the current step is correct
         pattern = r'(?:\b\w+\b\s*){0,5}\+'
         judgment = re.search(pattern, response.strip().lower())
+        step_info = {
+            'step_index': sdx,
+            'step_content': step,
+            'response': response
+        }
+        generations.append(step_info)
+        
         if not judgment:
             return {'step': sdx, 'generations': generations}
         messages.append({'role': 'assistant', 'content': '+'})
