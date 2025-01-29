@@ -8,7 +8,7 @@ from datasets import load_dataset
 import re
 # Create a global client variable
 client = None
-
+TEMPLATE = open('./templates/judge_template.txt').read().strip()
 
 def single_process(d):
     global client
@@ -19,9 +19,10 @@ def single_process(d):
         # Wrap each step with <step1>...</step1>, <step2>...</step2>, etc.
         wrapped_steps = [f"<step{i+1}>{s}</step{i+1}>" for i, s in enumerate(steps[:sdx + 1])]
         combined_steps = "\n\n".join(wrapped_steps)
+        prompt = TEMPLATE.format(problem=d['problem'], response=combined_steps)
         messages = [{
             'role': 'user',
-            'content': f"Problem: {d['problem']}\n\nPartial Solution:\n{combined_steps}\n\nIs this step correct? You must answer with '+' for correct or '-' for incorrect."
+            'content': prompt
         }]
         
         completion = client.chat.completions.create(
