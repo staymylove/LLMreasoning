@@ -16,38 +16,77 @@ def single_process(d):
     messages = []
     generations = []  # Store all intermediate generations
     for sdx, step in enumerate(steps):
-        # Wrap each step with <step1>...</step1>, <step2>...</step2>, etc.
-        wrapped_steps = [f"<step{i+1}>{s}</step{i+1}>" for i, s in enumerate(steps[:sdx + 1])]
-        combined_steps = "\n\n".join(wrapped_steps)
-        prompt = TEMPLATE.format(problem=d['problem'], response=combined_steps)
-        messages = [{
-            'role': 'user',
-            'content': prompt
-        }]
-        
-        completion = client.chat.completions.create(
-            model='DS14B',
-            messages=messages,
-            n=1,
-            temperature=0.,
-            max_tokens=1024,
-        )
-        response = completion.choices[0].message.content
-        print(response)
-        
-        # Check if the current step is correct
-        pattern = r'(?:\b\w+\b\s*){0,5}\+'
-        judgment = re.search(pattern, response.strip().lower())
-        step_info = {
-            'step_index': sdx,
-            'step_content': step,
-            'response': response
-        }
-        generations.append(step_info)
-        
-        if not judgment:
+        try:
+            # Wrap each step with <step1>...</step1>, <step2>...</step2>, etc.
+            wrapped_steps = [f"<step{i+1}>{s}</step{i+1}>" for i, s in enumerate(steps[:sdx + 1])]
+            combined_steps = "\n\n".join(wrapped_steps)
+            prompt = TEMPLATE.format(problem=d['problem'], response=combined_steps)
+            messages = [{
+                'role': 'user',
+                'content': prompt
+            }]
+            
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    completion = client.chat.completions.create(
+                        model='DS14B',
+                        messages=messages,
+                        n=1,
+                        temperature=0.,
+                        max_tokens=1024,
+                    )
+                    
+                    # Check if completion or its attributes are None
+                    if (completion is None or 
+                        completion.choices is None or 
+                        len(completion.choices) == 0 or 
+                        completion.choices[0] is None or 
+                        completion.choices[0].message is None or 
+                        completion.choices[0].message.content is None):
+                        if attempt < max_retries - 1:
+                            continue
+                        else:
+                            response = "Error: No valid response received"
+                            break
+                    else:
+                        response = completion.choices[0].message.content
+                        break
+                except Exception as e:
+                    print(f"Attempt {attempt + 1} failed with error: {str(e)}")
+                    if attempt < max_retries - 1:
+                        continue
+                    else:
+                        response = f"Error: {str(e)}"
+            
+            print(response)
+            
+            # Check if the current step is correct
+            pattern = r'(?:\b\w+\b\s*){0,5}\+'
+            judgment = re.search(pattern, response.strip().lower())
+            step_info = {
+                'step_index': sdx,
+                'step_content': step,
+                'response': response,
+                'error': None if 'Error:' not in response else response
+            }
+            generations.append(step_info)
+            
+            if not judgment:
+                return {'step': sdx, 'generations': generations}
+            messages.append({'role': 'assistant', 'content': '+'})
+            
+        except Exception as e:
+            print(f"Error processing step {sdx}: {str(e)}")
+            step_info = {
+                'step_index': sdx,
+                'step_content': step,
+                'response': f"Error: {str(e)}",
+                'error': str(e)
+            }
+            generations.append(step_info)
             return {'step': sdx, 'generations': generations}
-        messages.append({'role': 'assistant', 'content': '+'})
+            
     return {'step': -1, 'generations': generations}
 
 def main():
