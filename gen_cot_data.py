@@ -9,7 +9,7 @@ import json
 model_name = "/root/DeepSeek-R1-Distill-Qwen-32B"  # or your local model path
 llm = LLM(
     model=model_name,
-    tensor_parallel_size=1,  # adjust based on your GPU setup
+    tensor_parallel_size=8,  # adjust based on your GPU setup
     trust_remote_code=True,
 )
 tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
@@ -107,9 +107,6 @@ def prepare_incorrect_messages(examples):
             all_messages.append(messages)
             all_negative_prompts.extend(negative_prompts)
             all_negative_indices.append((len(all_messages)-1, negative_indices))
-
-        if len(all_messages) >= 100:
-            break
 
     return all_messages, all_negative_prompts, all_negative_indices
 
