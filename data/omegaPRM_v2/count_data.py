@@ -74,7 +74,7 @@ path_counts = []
 failed_trees_count = 0
 
 for j in range(11, 19):
-    with open(f'/root/LLMreasoning/data/omegaPRM_v2/output_results_data/results_part_{j}.json/math-aps-v2.jsonl', 'r') as file:
+    with open(f'/root/LLMreasoning/data/omegaPRM_v2/output_results_data/results_fold_{j}.json/math-aps-v2.jsonl', 'r') as file:
         offset_idx = len(leaf_counts)
         lines = file.readlines()
         for i, line in enumerate(tqdm(lines, desc="Processing trees")):
