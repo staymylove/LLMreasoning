@@ -48,7 +48,7 @@ train_dataset = train_dataset.map(
 
 # Configure LoRA
 lora_config = LoraConfig(
-    r=16,
+    r=8,
     lora_alpha=16,
     lora_dropout=0.1,
     bias="none",
