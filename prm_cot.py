@@ -25,11 +25,7 @@ def preprocess_function(examples):
     
     # Tokenize the texts
     tokenized = tokenizer(
-        templated_messages,
-        padding=True,
-        truncation=True,
-        max_length=1024,
-        return_tensors="pt"
+        templated_messages, padding="max_length", truncation=True, max_length=4096, return_tensors="pt"
     )
     
     # Create labels (same as input_ids for causal language modeling)
@@ -41,14 +37,14 @@ def preprocess_function(examples):
 train_dataset = train_dataset.map(
     preprocess_function,
     batched=True,
-    remove_columns=train_dataset.column_names,
+    remove_columns=["conversations"],
     desc="Processing dataset"
 )
 
 
 # Configure LoRA
 lora_config = LoraConfig(
-    r=8,
+    r=16,
     lora_alpha=16,
     lora_dropout=0.1,
     bias="none",
