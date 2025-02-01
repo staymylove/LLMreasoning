@@ -71,8 +71,6 @@ training_args = TrainingArguments(
     fp16=True,
     dataloader_num_workers=4,
     deepspeed="./ds_config.json",
-    # Add shuffle flag
-    shuffle=True
 )
 
 def main():
