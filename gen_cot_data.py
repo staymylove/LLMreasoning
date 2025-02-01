@@ -123,7 +123,10 @@ def process_examples(examples):
         for example_idx, indices in all_negative_indices:
             for idx in indices:
                 generated_text = outputs[current_output].outputs[0].text
-                all_messages[example_idx][idx]['content'] = generated_text
+                # Check if '-' appears in last 5 characters using regex
+                pattern = r'(?:\b\w+\b\s*){0,5}-$'
+                if re.search(pattern, generated_text.strip().lower()):
+                    all_messages[example_idx][idx]['content'] = generated_text
                 current_output += 1
 
     return all_messages
