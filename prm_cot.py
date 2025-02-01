@@ -28,7 +28,7 @@ def preprocess_function(examples):
         templated_messages,
         padding=True,
         truncation=True,
-        max_length=2048,
+        max_length=1024,
         return_tensors="pt"
     )
     
@@ -48,7 +48,7 @@ train_dataset = train_dataset.map(
 
 # Configure LoRA
 lora_config = LoraConfig(
-    r=8,
+    r=16,
     lora_alpha=16,
     lora_dropout=0.1,
     bias="none",
