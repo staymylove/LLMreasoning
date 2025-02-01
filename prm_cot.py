@@ -9,8 +9,8 @@ import os
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Initialize model and tokenizer
-# model_id = "/root/DeepSeek-R1-Distill-Qwen-14B"
-model_id = "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B"
+model_id = "/root/DeepSeek-R1-Distill-Qwen-14B"
+# model_id = "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B"
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 tokenizer.pad_token = tokenizer.eos_token 
 
