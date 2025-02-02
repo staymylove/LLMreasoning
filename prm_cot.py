@@ -25,7 +25,7 @@ def preprocess_function(examples):
     
     # Tokenize the texts
     tokenized = tokenizer(
-        templated_messages, padding="max_length", truncation=True, max_length=4096, return_tensors="pt"
+        templated_messages, padding="max_length", truncation=True, max_length=2048, return_tensors="pt"
     )
     
     # Create labels (same as input_ids for causal language modeling)
@@ -37,6 +37,7 @@ def preprocess_function(examples):
 train_dataset = train_dataset.map(
     preprocess_function,
     batched=True,
+    num_proc=4,
     remove_columns=["conversations"],
     desc="Processing dataset"
 )
@@ -55,8 +56,8 @@ training_args = TrainingArguments(
     output_dir="deepseek-r1-cot-math-reasoning-adapters",
     overwrite_output_dir=True,
     num_train_epochs=1,
-    per_device_train_batch_size=4,
-    gradient_accumulation_steps=4,
+    per_device_train_batch_size=2,
+    gradient_accumulation_steps=8,
     evaluation_strategy="no", 
     save_strategy="epoch",
     learning_rate=2e-5,
