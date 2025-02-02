@@ -41,7 +41,6 @@ def single_process(d):
             max_tokens=1024,
         )
         response = completion.choices[0].message.content
-        print(response)
         step_info['response'] = response
         generations.append(step_info)  # Save the generation with step information
         

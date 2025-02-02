@@ -30,7 +30,7 @@ def single_process(d):
             for attempt in range(max_retries):
                 try:
                     completion = client.chat.completions.create(
-                        model='DS14B',
+                        model='gpt-4o',
                         messages=messages,
                         n=1,
                         temperature=0.,
@@ -58,8 +58,6 @@ def single_process(d):
                         continue
                     else:
                         response = f"Error: {str(e)}"
-            
-            print(response)
             
             # Check if the current step is correct
             pattern = r'(?:\b\w+\b\s*){0,5}\+'
@@ -93,8 +91,10 @@ def main():
     global client
     # Initialize the client
     client = OpenAI(
-        base_url="http://localhost:8000/v1",
-        api_key="token-abc123",
+        # base_url="http://localhost:8000/v1",
+        # api_key="token-abc123",
+        base_url="https://a.fe8.cn/v1",
+        api_key="sk-QpHUrsblHgB7kAzcpwLmrFz3yKKTiFVlFOW2vgVc7ARfqsXR"
     )
     os.makedirs('outputs/DS14B', exist_ok=True)
 
