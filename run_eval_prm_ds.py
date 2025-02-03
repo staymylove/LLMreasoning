@@ -42,10 +42,24 @@ def single_process(d):
         )
         response = completion.choices[0].message.content
         step_info['response'] = response
-        generations.append(step_info)  # Save the generation with step information
+        generations.append(step_info)
         
-        pattern = r'(?:\b\w+\b\s*){0,5}\+'
-        judgment = re.search(pattern, response.strip().lower())
+        # New negative checking logic
+        content = response.strip().lower()
+        last_words = ' '.join(content.split()[-3:])  # Last 3 words
+        last_chars = content[-15:]  # Last 15 characters
+        cutoff = max(0, len(content) - len(content)//5)  # Last 20%
+        
+        judgment = not any(
+            '+' in part and '-' not in part
+            for part in (
+                content[-5:], 
+                last_words,
+                last_chars,
+                content[cutoff:]
+            )
+        )
+        
         if not judgment:
             return {'step': sdx, 'generations': generations}
         messages.append({'role': 'assistant', 'content': '+'})

@@ -564,12 +564,12 @@ if __name__ == "__main__":
         device="cuda",
         max_new_tokens=2048,
         model_type="vllm",
-        model_name="deepseek-ai/DeepSeek-R1-Distill-Qwen-7B"
+        model_name="deepseek-ai/DeepSeek-R1-Distill-Qwen-14B"
     )
 
     # Define the question and expected answer
-    question = "Melinda will roll two standard six-sided dice and make a two-digit number with the two numbers she rolls. For example, if she rolls a 6 and a 3, she can either form 36 or 63. What is the probability that she will be able to make an integer between 10 and 20, inclusive? Express your answer as a common fraction."
-    expected_answer =  "\\frac{11}{36}"
+    question = "四个人需要在晚上过一座摇摇欲坠的桥。不幸的是，他们只有一把火把，而桥太危险，无法在没有火把的情况下过桥，桥可以同时容纳四个人。每个人过桥的时间不同:1分钟、2分钟、7分钟和10分钟。那么，所有四个人过桥所需的最短时间是多少?"
+    expected_answer = "10"
 
     # Initialize OmegaPRM with parameters
     omega_prm = OmegaPRM(
@@ -578,9 +578,9 @@ if __name__ == "__main__":
         alpha=0.5,
         beta=0.9,
         L=500,
-        k=8,
-        N=6,
-        rollout_budget=20,
+        k=16,
+        N=10,
+        rollout_budget=100,
         save_data_tree=True,
     )
 
