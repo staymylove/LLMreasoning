@@ -11,7 +11,7 @@
 - python /data/zeju/LLMreasoning/data_prepare.py
 
 - python /data/zeju/LLMreasoning/process_prm_data/our_data.py
-- 
+
 - python /data/zeju/LLMreasoning/process_prm_data/transform_format.py
 
 # Fine-tune LLama to get PRM
