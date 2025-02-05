@@ -62,7 +62,7 @@ def single_process(d):
         
         if not judgment:
             return {'step': sdx, 'generations': generations}
-        messages.append({'role': 'assistant', 'content': '+'})
+        messages.append({'role': 'assistant', 'content': '<think>\n\n</think> +'})
     return {'step': -1, 'generations': generations}
 
 def main():
