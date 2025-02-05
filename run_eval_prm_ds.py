@@ -38,7 +38,7 @@ def single_process(d):
             messages=messages,
             n=1,
             temperature=0.,
-            max_tokens=1024,
+            max_tokens=4096,
         )
         response = completion.choices[0].message.content
         step_info['response'] = response
