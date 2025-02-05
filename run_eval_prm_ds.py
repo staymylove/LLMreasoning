@@ -50,7 +50,7 @@ def single_process(d):
         last_chars = content[-15:]  # Last 15 characters
         cutoff = max(0, len(content) - len(content)//5)  # Last 20%
         
-        judgment = not any(
+        judgment = any(
             '+' in part and '-' not in part
             for part in (
                 content[-5:], 

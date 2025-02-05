@@ -3,7 +3,7 @@ from tqdm import tqdm
 import re
 
 
-with open('/data/jianyuan/LLMreasoning/prm_datasets/merged_training_dataset.jsonl', 'r') as f:
+with open('/data/zeju/new-traces/output_results_data/training_new_processed.jsonl', 'r') as f:
     dataset = [json.loads(line) for line in f]
 
 step_tag2 = '\n\n'
@@ -42,6 +42,6 @@ for example in examples:
     
 
 # save processed examples to jsonl
-with open('/data/jianyuan/LLMreasoning/prm_datasets/merged_training_dataset_processed.jsonl', 'w') as f:
+with open('/data/jianyuan/LLMreasoning/prm_datasets/training_new_processed_templated.jsonl', 'w') as f:
     for example in processed_examples:
         f.write(json.dumps(example) + '\n')

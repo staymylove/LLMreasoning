@@ -71,8 +71,8 @@ def transform_data_format(input_file, output_file):
     return len(transformed_records)
 
 if __name__ == "__main__":
-    input_file = "/data/jianyuan/LLMreasoning/prm_datasets/merged_data_unfiltered_v0.jsonl"
-    output_file = "/data/jianyuan/LLMreasoning/prm_datasets/merged_data_unfiltered_v0_transformed.jsonl"
+    input_file = "/data/zeju/new-traces/output_results_data/training_new_processed.jsonl"
+    output_file = "/data/jianyuan/LLMreasoning/prm_datasets/training_new_processed_transformed.jsonl"
     
     total_records = transform_data_format(input_file, output_file)
     print(f"\nTransformed data saved to: {output_file}")
